@@ -1,0 +1,38 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+frontend/.env
+frontend/.env.local
+backend/.env
+backend/application-local.yml
+
+# Java / Maven
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+tools/
+*.class
+*.log
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+npm-debug.log*
+.vite/
+
+# Test
+*.db
+*.h2.db
+
+# Misc
+.cursor/
