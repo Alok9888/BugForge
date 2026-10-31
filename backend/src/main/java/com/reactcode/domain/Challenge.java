@@ -53,6 +53,10 @@ public class Challenge {
     protected Challenge() {
     }
 
+    public static Challenge create() {
+        return new Challenge();
+    }
+
     public Long getId() {
         return id;
     }

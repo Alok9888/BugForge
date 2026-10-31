@@ -1,6 +1,7 @@
 package com.reactcode.api;
 
 import com.reactcode.api.dto.ErrorResponse;
+import com.reactcode.service.EvaluatorUnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException ex, HttpServletRequest request) {
         return error(HttpStatus.BAD_REQUEST, ex.getMessage(), request, List.of());
+    }
+
+    @ExceptionHandler(EvaluatorUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleEvaluatorUnavailable(EvaluatorUnavailableException ex, HttpServletRequest request) {
+        return error(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), request, List.of());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

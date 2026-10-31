@@ -120,7 +120,7 @@ public final class ChallengeCatalog {
                 - Render a button with `data-testid="toggle"`.
                 - When hidden, the button text is **Show**.
                 - When visible, the button text is **Hide**.
-                - Render the message `Hello ReactCode` in an element with `data-testid="message"` only while visible.
+                - Render the message `Hello BugForge` in an element with `data-testid="message"` only while visible.
                 - The message is hidden on first render.
 
                 ## Example
@@ -149,7 +149,7 @@ public final class ChallengeCatalog {
                 """
                 {"cases":[
                   {"id":"starts-hidden","name":"Message is hidden initially","steps":[{"type":"assertText","testId":"toggle","equals":"Show"},{"type":"assertNotExists","testId":"message"}]},
-                  {"id":"shows-message","name":"Clicking Show reveals the message","steps":[{"type":"click","testId":"toggle"},{"type":"assertText","testId":"message","equals":"Hello ReactCode"},{"type":"assertText","testId":"toggle","equals":"Hide"}]},
+                  {"id":"shows-message","name":"Clicking Show reveals the message","steps":[{"type":"click","testId":"toggle"},{"type":"assertText","testId":"message","equals":"Hello BugForge"},{"type":"assertText","testId":"toggle","equals":"Hide"}]},
                   {"id":"hides-again","name":"Clicking Hide restores the original state","steps":[{"type":"click","testId":"toggle"},{"type":"click","testId":"toggle"},{"type":"assertNotExists","testId":"message"},{"type":"assertText","testId":"toggle","equals":"Show"}]}
                 ]}
                 """

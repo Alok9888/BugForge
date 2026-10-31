@@ -29,26 +29,29 @@ import java.util.Set;
 public class SubmissionService {
 
     static final String VERIFICATION_NOTE =
-            "Results were produced in the browser sandbox. The server stored and cross-checked counts against the challenge definition, but did not re-execute the JavaScript.";
+            "The server evaluated your component in an isolated browser runner against the challenge's managed tests.";
 
     private final ChallengeRepository challengeRepository;
     private final ChallengeProgressRepository progressRepository;
     private final SubmissionRepository submissionRepository;
     private final ChallengeService challengeService;
     private final ObjectMapper objectMapper;
+    private final EvaluationClient evaluator;
 
     public SubmissionService(
             ChallengeRepository challengeRepository,
             ChallengeProgressRepository progressRepository,
             SubmissionRepository submissionRepository,
             ChallengeService challengeService,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            EvaluationClient evaluator
     ) {
         this.challengeRepository = challengeRepository;
         this.progressRepository = progressRepository;
         this.submissionRepository = submissionRepository;
         this.challengeService = challengeService;
         this.objectMapper = objectMapper;
+        this.evaluator = evaluator;
     }
 
     @Transactional
@@ -56,40 +59,29 @@ public class SubmissionService {
         Challenge challenge = challengeRepository.findBySlug(request.challengeSlug())
                 .orElseThrow(() -> new NotFoundException("Challenge not found: " + request.challengeSlug()));
 
+        EvaluationResult evaluation = evaluator.evaluate(challenge, request.code());
         int expected = challengeService.expectedTestCount(challenge);
-        if (expected == 0) {
-            throw new BadRequestException("Challenge has no tests configured");
+        if (expected == 0 || evaluation.totalCount() != expected || evaluation.results().size() != expected) {
+            throw new IllegalStateException("Evaluation runner returned the wrong number of test results");
         }
-        if (request.results().size() != expected) {
-            throw new BadRequestException("Result count does not match challenge tests");
-        }
-
         Set<String> expectedIds = new HashSet<>();
+        Set<String> resultIds = new HashSet<>();
         try {
             JsonNode cases = objectMapper.readTree(challenge.getTestsJson()).path("cases");
-            cases.forEach(testCase -> {
-                if (testCase.hasNonNull("id")) expectedIds.add(testCase.get("id").asText());
-            });
+            cases.forEach(item -> { if (item.hasNonNull("id")) expectedIds.add(item.get("id").asText()); });
+            evaluation.results().forEach(item -> { if (item != null && item.id() != null) resultIds.add(item.id()); });
         } catch (JsonProcessingException ex) {
-            throw new BadRequestException("Challenge tests are invalid");
+            throw new IllegalStateException("Challenge test configuration is invalid", ex);
         }
-        if (expectedIds.size() != expected) {
-            throw new BadRequestException("Challenge test IDs must be present and unique");
+        if (expectedIds.size() != expected || resultIds.size() != expected || !expectedIds.equals(resultIds)) {
+            throw new IllegalStateException("Evaluation runner returned mismatched test cases");
         }
-        Set<String> submittedIds = new HashSet<>();
-        for (TestCaseResultDto result : request.results()) {
-            if (!expectedIds.contains(result.id()) || !submittedIds.add(result.id())) {
-                throw new BadRequestException("Test result IDs must match the challenge tests exactly");
-            }
+        long passedFromResults = evaluation.results().stream().filter(TestCaseResultDto::passed).count();
+        if (passedFromResults != evaluation.passedCount()
+                || evaluation.failedCount() != evaluation.totalCount() - evaluation.passedCount()) {
+            throw new IllegalStateException("Evaluation runner returned inconsistent test results");
         }
-
-        long passedFromResults = request.results().stream().filter(TestCaseResultDto::passed).count();
-        long failedFromResults = request.results().size() - passedFromResults;
-        if (request.passedCount() != passedFromResults || request.failedCount() != failedFromResults) {
-            throw new BadRequestException("Reported pass/fail counts do not match result items");
-        }
-
-        boolean allPassed = failedFromResults == 0;
+        boolean allPassed = evaluation.passed();
         SubmissionStatus status = allPassed ? SubmissionStatus.PASSED : SubmissionStatus.FAILED;
         Instant now = Instant.now();
 
@@ -98,20 +90,20 @@ public class SubmissionService {
                 challenge,
                 request.code(),
                 status,
-                request.passedCount(),
-                request.failedCount(),
+                evaluation.passedCount(),
+                evaluation.failedCount(),
                 expected,
-                writeResults(request.results()),
-                VerificationSource.CLIENT_BROWSER,
+                writeResults(evaluation.results()),
+                VerificationSource.SERVER_RUNNER,
                 now
         ));
 
         ChallengeProgress progress = progressRepository.findByUserAndChallenge(user, challenge)
                 .orElseGet(() -> new ChallengeProgress(user, challenge));
-        progress.recordAttempt(request.code(), request.passedCount(), request.failedCount(), allPassed, now);
+        progress.recordAttempt(request.code(), evaluation.passedCount(), evaluation.failedCount(), allPassed, now);
         progressRepository.save(progress);
 
-        return toResponse(submission, progress.isSolved(), request.results());
+        return toResponse(submission, progress.isSolved(), evaluation.results());
     }
 
     @Transactional(readOnly = true)

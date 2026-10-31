@@ -24,8 +24,11 @@ tools/
 *.log
 
 # Node
+**/node_modules/
 frontend/node_modules/
+evaluator/node_modules/
 frontend/dist/
+frontend/public/runtime/
 frontend/coverage/
 npm-debug.log*
 .vite/

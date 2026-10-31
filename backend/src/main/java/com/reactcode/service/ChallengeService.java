@@ -127,12 +127,6 @@ public class ChallengeService {
     }
 
     private ChallengeDetailDto toDetail(Challenge challenge, boolean solved) {
-        JsonNode tests;
-        try {
-            tests = objectMapper.readTree(challenge.getTestsJson());
-        } catch (JsonProcessingException ex) {
-            tests = objectMapper.createObjectNode();
-        }
         return new ChallengeDetailDto(
                 challenge.getId(),
                 challenge.getSlug(),
@@ -142,7 +136,6 @@ public class ChallengeService {
                 challenge.getShortDescription(),
                 challenge.getStatement(),
                 challenge.getStarterCode(),
-                tests,
                 challenge.isMvpAvailable(),
                 !challenge.isMvpAvailable(),
                 solved

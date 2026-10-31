@@ -33,6 +33,6 @@ class ChallengeServiceTest {
         var detail = challenges.getBySlug(user, "counter");
 
         assertThat(detail.starterCode()).contains("data-testid=\"count\"");
-        assertThat(detail.tests().path("cases")).hasSize(3);
+        assertThat(detail.statement()).contains("Requirements");
     }
 }

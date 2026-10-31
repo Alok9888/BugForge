@@ -3,9 +3,9 @@ server:
 
 spring:
   application:
-    name: reactcode-backend
+    name: bugforge-backend
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/reactcode}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/reactcode}
     username: ${DATABASE_USERNAME:postgres}
     password: ${DATABASE_PASSWORD:postgres}
   jpa:
@@ -21,6 +21,9 @@ spring:
     locations: classpath:db/migration
 
 app:
+  evaluator:
+    url: ${EVALUATOR_URL:http://localhost:8090}
+    token: ${EVALUATOR_TOKEN:local-dev-only-change-me}
   cors:
     origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   catalog:

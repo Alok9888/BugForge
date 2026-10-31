@@ -5,9 +5,9 @@ services:
     environment:
       POSTGRES_DB: reactcode
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD in the project root .env file}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - reactcode_pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -16,5 +16,60 @@ services:
       timeout: 5s
       retries: 10
 
+  backend:
+    build:
+      context: ./backend
+    container_name: reactcode-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      evaluator:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/reactcode
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD in the project root .env file}
+      EVALUATOR_URL: http://evaluator:8090
+      EVALUATOR_TOKEN: ${EVALUATOR_TOKEN:-local-dev-only-change-me}
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+    ports:
+      - "127.0.0.1:8080:8080"
+    networks:
+      - default
+      - evaluator-internal
+
+  evaluator:
+    build:
+      context: ./evaluator
+    container_name: reactcode-evaluator
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid
+    shm_size: 256m
+    mem_limit: 1g
+    cpus: 1.0
+    pids_limit: 128
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      PORT: 8090
+      NODE_OPTIONS: --max-old-space-size=384
+      EVALUATOR_TOKEN: ${EVALUATOR_TOKEN:-local-dev-only-change-me}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8090/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - evaluator-internal
+
 volumes:
   reactcode_pgdata:
+
+networks:
+  default:
+  evaluator-internal:
+    internal: true

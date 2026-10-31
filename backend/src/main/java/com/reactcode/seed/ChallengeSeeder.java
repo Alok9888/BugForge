@@ -1,6 +1,5 @@
 package com.reactcode.seed;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reactcode.domain.Challenge;
 import com.reactcode.repo.ChallengeRepository;
 import org.springframework.boot.ApplicationArguments;
@@ -15,11 +14,8 @@ import java.util.List;
 public class ChallengeSeeder implements ApplicationRunner {
 
     private final ChallengeRepository challengeRepository;
-    private final ObjectMapper objectMapper;
-
-    public ChallengeSeeder(ChallengeRepository challengeRepository, ObjectMapper objectMapper) {
+    public ChallengeSeeder(ChallengeRepository challengeRepository) {
         this.challengeRepository = challengeRepository;
-        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -28,7 +24,7 @@ public class ChallengeSeeder implements ApplicationRunner {
         List<SeedChallenge> items = ChallengeCatalog.all();
         Instant now = Instant.now();
         for (SeedChallenge item : items) {
-            Challenge challenge = challengeRepository.findBySlug(item.slug()).orElseGet(Challenge::new);
+            Challenge challenge = challengeRepository.findBySlug(item.slug()).orElseGet(Challenge::create);
             if (challenge.getCreatedAt() == null) {
                 challenge.setCreatedAt(now);
             }
