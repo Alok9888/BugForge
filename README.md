@@ -68,6 +68,12 @@ The frontend `postinstall` script copies the preview runtime libraries into an i
 
 The evaluator is a dedicated service rather than a JavaScript engine embedded in Spring. Its Docker container provides useful isolation for this local MVP, but arbitrary code execution remains a high risk area. Before public deployment, run evaluation in a stronger per-job sandbox with an independently maintained browser image, strict egress policy, request authentication, and monitoring.
 
+## GitHub Pages frontend
+
+The `.github/workflows/pages.yml` workflow builds the React app in `frontend` and deploys the generated `frontend/dist` site whenever changes are pushed to `master`. In the repository settings, open **Pages** and set the publishing source to **GitHub Actions**. The workflow uses the `/BugForge/` base path and hash-based URLs required by this repository's Pages address.
+
+GitHub Pages hosts static files only. It does not run the Spring API, evaluator, or PostgreSQL database, so the challenge list and submissions need a separately deployed backend. Until that backend is connected, the page itself can load while API features show an error.
+
 ## API
 
 - `GET /api/problems` — paginated challenge metadata (the original `/api/challenges` alias remains available).
