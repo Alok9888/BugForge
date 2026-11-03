@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="470" viewBox="0 0 1280 470" role="img" aria-labelledby="title desc">
+  <title id="title">BugForge system design</title>
+  <desc id="desc">The React frontend sends requests to a Spring Boot API. The API reads and writes PostgreSQL and sends submitted code and challenge tests to a Playwright evaluator.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto-start-reverse" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#475569"/>
+    </marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #1f2937; }
+      .group { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.5; }
+      .group-title { font-size: 15px; font-weight: 700; letter-spacing: .4px; fill: #334155; }
+      .card { fill: #ffffff; stroke: #4b6b8a; stroke-width: 1.6; }
+      .db { fill: #fff8e7; stroke: #a97818; stroke-width: 1.6; }
+      .title { font-size: 18px; font-weight: 700; }
+      .detail { font-size: 14px; fill: #475569; }
+      .wire { fill: none; stroke: #475569; stroke-width: 2; marker-start: url(#arrow); marker-end: url(#arrow); }
+      .forward { fill: none; stroke: #475569; stroke-width: 2; marker-end: url(#arrow); }
+      .label-bg { fill: #ffffff; }
+      .label { font-size: 13px; fill: #475569; }
+      .note { font-size: 14px; fill: #475569; }
+    </style>
+  </defs>
+
+  <rect x="32" y="40" width="292" height="330" rx="6" class="group"/>
+  <text x="52" y="70" class="group-title">BROWSER</text>
+
+  <rect x="360" y="40" width="620" height="330" rx="6" class="group"/>
+  <text x="380" y="70" class="group-title">APPLICATION SERVICES · DOCKER COMPOSE</text>
+
+  <rect x="990" y="40" width="258" height="330" rx="6" class="group"/>
+  <text x="1010" y="70" class="group-title">DATA</text>
+
+  <rect x="66" y="150" width="224" height="128" rx="5" class="card"/>
+  <rect x="66" y="150" width="224" height="7" fill="#4b6b8a"/>
+  <text x="84" y="190" class="title">React frontend</text>
+  <text x="84" y="218" class="detail">Code editor</text>
+  <text x="84" y="241" class="detail">Live preview in iframe</text>
+
+  <rect x="388" y="150" width="210" height="128" rx="5" class="card"/>
+  <rect x="388" y="150" width="210" height="7" fill="#4b6b8a"/>
+  <text x="406" y="190" class="title">Spring Boot API</text>
+  <text x="406" y="218" class="detail">Challenges · submissions</text>
+  <text x="406" y="241" class="detail">Progress</text>
+
+  <rect x="720" y="150" width="210" height="128" rx="5" class="card"/>
+  <rect x="720" y="150" width="210" height="7" fill="#5b8062"/>
+  <text x="738" y="190" class="title">Playwright evaluator</text>
+  <text x="738" y="218" class="detail">Babel compiles submitted code</text>
+  <text x="738" y="241" class="detail">Chromium runs the tests</text>
+
+  <path d="M1020 162 C1020 155 1058 150 1107 150 C1154 150 1192 155 1192 162 L1192 264 C1192 271 1154 276 1107 276 C1058 276 1020 271 1020 264 Z" class="db"/>
+  <ellipse cx="1106" cy="162" rx="86" ry="12" class="db"/>
+  <path d="M1020 264 C1020 271 1058 276 1107 276 C1154 276 1192 271 1192 264" fill="none" stroke="#a97818" stroke-width="1.6"/>
+  <text x="1106" y="205" text-anchor="middle" class="title">PostgreSQL</text>
+  <text x="1106" y="230" text-anchor="middle" class="detail">Challenges + private tests</text>
+  <text x="1106" y="252" text-anchor="middle" class="detail">Users + submissions + progress</text>
+
+  <path d="M290 211 H388" class="wire"/>
+  <rect x="297" y="187" width="84" height="24" rx="3" class="label-bg"/>
+  <text x="339" y="204" text-anchor="middle" class="label">REST API</text>
+
+  <path d="M598 198 H720" class="forward"/>
+  <rect x="607" y="176" width="104" height="22" rx="3" class="label-bg"/>
+  <text x="659" y="192" text-anchor="middle" class="label">Code + tests</text>
+  <path d="M720 238 H598" class="forward"/>
+  <rect x="622" y="240" width="74" height="22" rx="3" class="label-bg"/>
+  <text x="659" y="256" text-anchor="middle" class="label">Results</text>
+
+  <path d="M493 278 V328 H1106 V276" class="wire"/>
+  <rect x="755" y="316" width="110" height="24" rx="3" class="label-bg"/>
+  <text x="810" y="333" text-anchor="middle" class="label">Read + write data</text>
+
+  <text x="32" y="414" class="note">On submit: API loads private tests → evaluator runs them → API saves the result and returns it to the frontend.</text>
+</svg>

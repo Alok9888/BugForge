@@ -2,6 +2,8 @@
 
 BugForge is a LeetCode-style practice app for building React components. It includes a seeded challenge catalog, a React/Vite workspace, an isolated live preview, and server-controlled browser evaluation.
 
+See [the current system design](docs/system-design.md) for the architecture, request flows, data model, API endpoints, and deployment status.
+
 ## Requirements
 
 - Node.js 20 or newer and npm for the frontend (the evaluator image includes its own Node.js runtime)
